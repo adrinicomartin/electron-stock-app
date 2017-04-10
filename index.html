@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <style>
+    body {
+      background: #6E86C4;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+    }
+    .tickerName {
+      font-size: 45px;
+    }
+    .price {
+      font-size: 45px;
+      font-weight: bold;
+    }
+    .variation-down {
+      color: red;
+    }
+    .variation-up {
+      color: green;
+    }
+    .variation-neutral {
+      color: gray;
+    }
+  </style>
+  <body style="-webkit-app-region: drag">
+    <div >
+      <span class="tickerName">MULE : </span>
+      <span id="price" class="price"></span>
+      <span id="variation" class="variation"></span>
+    </div>
+    <div >
+      <span id="lastTradeDt" class="lastTradeDt"></span>
+    </div>
+    <script>
+      var request = require('request');
+      setInterval(function() {
+        request('https://finance.google.com/finance/info?q=mule', function (error, response, body) {
+          body = body.slice(3);
+          body = JSON.parse(body);
+          console.log(body);
+          setPrice(body);
+        });
+      }, 5000);
+
+      function setPrice(jsonArr) {
+        currentPrice = jsonArr[0]['l'];
+        variation = jsonArr[0]['c'];
+        lastTrade = jsonArr[0]['lt_dts'];
+        var lastTradeDt = new Date(lastTrade);
+        document.getElementById('price').innerHTML = currentPrice;
+        document.getElementById('lastTradeDt').innerHTML = lastTradeDt;
+        document.getElementById('variation').innerHTML = '(' + variation + ')';
+        if (variation.startsWith('-')) {
+          document.getElementById('variation').className = 'variation-down';
+        } else if (variation.startsWith('+')) {
+          document.getElementById('variation').className = 'variation-up';
+        } else {
+          document.getElementById('variation').className = 'variation-neutral';
+        }
+      };
+    </script>
+  </body>
+</html>
